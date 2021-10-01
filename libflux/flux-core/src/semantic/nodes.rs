@@ -815,7 +815,7 @@ pub struct FunctionExpr {
 }
 
 impl FunctionExpr {
-    fn infer(&mut self, mut env: Environment, f: &mut Fresher) -> Result {
+    fn infer(&mut self, env: Environment, f: &mut Fresher) -> Result {
         let mut cons = Constraints::empty();
         let mut pipe = None;
         let mut req = MonoTypeMap::new();
@@ -825,20 +825,18 @@ impl FunctionExpr {
         for param in &mut self.params {
             match param.default {
                 Some(ref mut e) => {
-                    let (nenv, ncons) = e.infer(env, f)?;
-                    cons = cons + ncons;
                     let id = param.key.name.clone();
                     // We are here: `f = (a=1) => {...}`.
                     // So, this PolyType is actually a MonoType, whose type
                     // is the one of the default value ("1" in "a=1").
+                    let ftvar = f.fresh();
                     let typ = PolyType {
                         vars: Vec::new(),
                         cons: TvarKinds::new(),
-                        expr: e.type_of(),
+                        expr: MonoType::Var(ftvar),
                     };
                     params.insert(id.clone(), typ);
                     opt.insert(id, e.type_of());
-                    env = nenv;
                 }
                 None => {
                     // We are here: `f = (a) => {...}`.
@@ -862,7 +860,7 @@ impl FunctionExpr {
                         req.insert(id, MonoType::Var(ftvar));
                     }
                 }
-            };
+            }
         }
         // Add the parameters to some nested environment.
         let mut nenv = Environment::new(env);
@@ -899,8 +897,78 @@ impl FunctionExpr {
             act: func,
             loc: self.loc.clone(),
         });
+
+        let mut kinds = TvarKinds::new();
+        let sub = infer::solve(&cons, &mut kinds, f)?;
+
+        // Apply substitution to the type environment
+        let env = env.apply(&sub);
+
+        let t = self.typ.clone().apply(&sub);
+        let p = infer::generalize(&env, &kinds, t);
+
+        let (env, ncons) = self.infer_default_params(env, f, p)?;
+
+        Ok((env, cons + ncons))
+    }
+
+    fn infer_default_params(
+        &mut self,
+        mut env: Environment,
+        f: &mut Fresher,
+        function_type: PolyType,
+    ) -> Result {
+        let mut cons = Constraints::empty();
+        let mut pipe = None;
+        let mut req = MonoTypeMap::new();
+        let mut opt = MonoTypeMap::new();
+
+        for param in &mut self.params {
+            match param.default {
+                Some(ref mut e) => {
+                    let (nenv, ncons) = e.infer(env, f)?;
+                    cons = cons + ncons;
+                    let id = param.key.name.clone();
+                    opt.insert(id, e.type_of());
+                    env = nenv;
+                }
+                None => {
+                    let id = param.key.name.clone();
+                    let ftvar = f.fresh();
+                    // Piped arguments cannot have a default value.
+                    // So check if this is a piped argument.
+                    if param.is_pipe {
+                        pipe = Some(types::Property {
+                            k: id,
+                            v: MonoType::Var(ftvar),
+                        });
+                    } else {
+                        req.insert(id, MonoType::Var(ftvar));
+                    }
+                }
+            }
+        }
+
+        let retn = MonoType::Var(f.fresh());
+        let default_func = MonoType::from(Function {
+            req,
+            opt,
+            pipe,
+            retn,
+        });
+
+        let (exp, ncons) = infer::instantiate(function_type, f, self.loc.clone());
+        cons = cons + ncons;
+
+        cons.add(Constraint::Equal {
+            exp,
+            act: default_func,
+            loc: self.loc.clone(),
+        });
+
         Ok((env, cons))
     }
+
     #[allow(missing_docs)]
     pub fn pipe(&self) -> Option<&FunctionParameter> {
         for p in &self.params {
