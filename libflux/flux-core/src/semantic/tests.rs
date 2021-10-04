@@ -114,6 +114,7 @@ fn infer_types(
     imp: HashMap<&str, HashMap<&str, &str>>,
     want: Option<HashMap<&str, &str>>,
 ) -> Result<Environment, Error> {
+    let _ = env_logger::try_init();
     // Parse polytype expressions in external packages.
     let imports: SemanticMap<&str, SemanticMap<String, PolyType>> = imp
         .into_iter()
@@ -2841,13 +2842,17 @@ fn call_expr() {
             "f" => "(x:(arg:C) => E, y:C) => E",
         ]
     }
+}
+
+#[test]
+fn infer_pipe() {
     test_infer! {
         src: r#"
             f = (arg=(x=<-) => x) => 0 |> arg()
             g = () => f(arg: (x) => 5 + x)
         "#,
         exp: map![
-            "f" => "(?arg:(<-x:int) => int) => int",
+            "f" => "(?arg:(<-x:int) => D) => D",
             "g" => "() => int",
         ]
     }

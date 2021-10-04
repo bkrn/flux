@@ -107,6 +107,7 @@ pub fn solve(
                 // Apply the current substitution to the constraint, then unify
                 let exp = exp.clone().apply(&sub);
                 let act = act.clone().apply(&sub);
+                log::debug!("{} == {} ==> {:?}", exp, act, loc.source);
                 let s = match exp.unify(act, with, fresher) {
                     Err(e) => Err(Error {
                         loc: loc.clone(),

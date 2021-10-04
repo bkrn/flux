@@ -441,6 +441,7 @@ impl MonoType {
         cons: &mut TvarKinds,
         f: &mut Fresher,
     ) -> Result<Substitution, Error> {
+        log::trace!("{} == {}", self, actual);
         match (self, actual) {
             (MonoType::Bool, MonoType::Bool)
             | (MonoType::Int, MonoType::Int)
