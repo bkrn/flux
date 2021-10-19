@@ -35,3 +35,4 @@ var sourceHashes = map[string]string{
 	"libflux/flux-core/src/parser/strconv.rs":                                                     "748c82f6efc2eafaafb872db5b4185ce29aafa8f03ba02c4b84f4a9614e832d2",
 	"libflux/flux-core/src/parser/tests.rs":                                                       "1277c672801f50eefd36ddfae4ce8456c5ddcfbe63f4b1923f1aecbb2d9794c3",
 	"libflux/flux-core/src/scanner/mod.rs":
+===>>> 7e3c1dbb (fix: Correct the Record::contains function)
