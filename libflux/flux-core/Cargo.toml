@@ -48,6 +48,7 @@ pulldown-cmark = { version = "0.8", default-features = false }
 structopt = "0.3"
 libflate = "1"
 lazy_static = "1"
+log = "0.4"
 
 [dev-dependencies]
 colored = "1.8"
