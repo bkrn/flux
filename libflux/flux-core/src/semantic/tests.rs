@@ -293,11 +293,21 @@ macro_rules! test_infer_err {
 /// ```
 ///
 macro_rules! test_error_msg {
-    ( src: $src:expr $(,)?, err: $err:expr $(,)? ) => {{
+    ( $(imp: $imp:expr,)? $(env: $env:expr,)? src: $src:expr $(,)?, err: $err:expr $(,)? ) => {{
+        #[allow(unused_mut, unused_assignments)]
+        let mut imp = HashMap::default();
+        $(
+            imp = $imp;
+        )?
+        #[allow(unused_mut, unused_assignments)]
+        let mut env = HashMap::default();
+        $(
+            env = $env;
+        )?
         match infer_types(
             $src,
-            HashMap::default(),
-            HashMap::default(),
+            env,
+            imp,
             None,
             AnalyzerConfig::default(),
         ) {
@@ -3597,5 +3607,21 @@ fn test_analyzer_skip_checks() {
             "x" => "() => int",
             "y" => "int",
         ],
+    }
+}
+
+#[test]
+fn primitive_kind_errors() {
+    test_error_msg! {
+        env: map![
+            "isType" => "(v: A, type: string) => bool where A: Primitive",
+        ],
+        src: r#"
+            isType(v: {}, type: "record")
+            isType(v: [], type: "array")
+        "#,
+        err: "error @2:13-2:42: {} is not Primitive (argument v)
+
+error @3:13-3:41: [A] is not Primitive (argument v)",
     }
 }

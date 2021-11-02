@@ -309,6 +309,7 @@ pub enum Kind {
     Negatable,
     Nullable,
     Numeric,
+    Primitive,
     Record,
     Stringable,
     Subtractable,
@@ -544,7 +545,7 @@ impl MonoType {
     pub fn constrain(self, with: Kind, cons: &mut TvarKinds) -> Result<(), Error> {
         match self {
             MonoType::Bool => match with {
-                Kind::Equatable | Kind::Nullable | Kind::Stringable => Ok(()),
+                Kind::Equatable | Kind::Nullable | Kind::Primitive | Kind::Stringable => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
                     exp: with,
@@ -558,6 +559,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
+                | Kind::Primitive
                 | Kind::Stringable
                 | Kind::Negatable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -573,6 +575,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
+                | Kind::Primitive
                 | Kind::Stringable
                 | Kind::Negatable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -588,6 +591,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
+                | Kind::Primitive
                 | Kind::Stringable
                 | Kind::Negatable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -600,6 +604,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
+                | Kind::Primitive
                 | Kind::Stringable => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
@@ -611,6 +616,7 @@ impl MonoType {
                 | Kind::Equatable
                 | Kind::Nullable
                 | Kind::Negatable
+                | Kind::Primitive
                 | Kind::Stringable
                 | Kind::Timeable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -623,18 +629,22 @@ impl MonoType {
                 | Kind::Equatable
                 | Kind::Nullable
                 | Kind::Timeable
+                | Kind::Primitive
                 | Kind::Stringable => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
                     exp: with,
                 }),
             },
-            MonoType::Regexp => Err(Error::CannotConstrain {
-                act: self,
-                exp: with,
-            }),
+            MonoType::Regexp => match with {
+                Kind::Primitive => Ok(()),
+                _ => Err(Error::CannotConstrain {
+                    act: self,
+                    exp: with,
+                }),
+            },
             MonoType::Bytes => match with {
-                Kind::Equatable => Ok(()),
+                Kind::Equatable | Kind::Primitive => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
                     exp: with,
@@ -2502,6 +2512,7 @@ mod tests {
             Kind::Record,
             Kind::Negatable,
             Kind::Timeable,
+            Kind::Primitive,
             Kind::Stringable,
         ];
         let mut str_kinds: Vec<_> = kinds.iter().map(|k| k.to_string()).collect();
