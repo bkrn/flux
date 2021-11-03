@@ -303,13 +303,13 @@ impl Substitutable for Error {
 // Kinds are ordered by name so that polytypes are displayed deterministically
 pub enum Kind {
     Addable,
+    Basic,
     Comparable,
     Divisible,
     Equatable,
     Negatable,
     Nullable,
     Numeric,
-    Primitive,
     Record,
     Stringable,
     Subtractable,
@@ -545,7 +545,7 @@ impl MonoType {
     pub fn constrain(self, with: Kind, cons: &mut TvarKinds) -> Result<(), Error> {
         match self {
             MonoType::Bool => match with {
-                Kind::Equatable | Kind::Nullable | Kind::Primitive | Kind::Stringable => Ok(()),
+                Kind::Equatable | Kind::Nullable | Kind::Basic | Kind::Stringable => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
                     exp: with,
@@ -559,7 +559,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
-                | Kind::Primitive
+                | Kind::Basic
                 | Kind::Stringable
                 | Kind::Negatable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -575,7 +575,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
-                | Kind::Primitive
+                | Kind::Basic
                 | Kind::Stringable
                 | Kind::Negatable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -591,7 +591,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
-                | Kind::Primitive
+                | Kind::Basic
                 | Kind::Stringable
                 | Kind::Negatable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -604,7 +604,7 @@ impl MonoType {
                 | Kind::Comparable
                 | Kind::Equatable
                 | Kind::Nullable
-                | Kind::Primitive
+                | Kind::Basic
                 | Kind::Stringable => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
@@ -616,7 +616,7 @@ impl MonoType {
                 | Kind::Equatable
                 | Kind::Nullable
                 | Kind::Negatable
-                | Kind::Primitive
+                | Kind::Basic
                 | Kind::Stringable
                 | Kind::Timeable => Ok(()),
                 _ => Err(Error::CannotConstrain {
@@ -629,7 +629,7 @@ impl MonoType {
                 | Kind::Equatable
                 | Kind::Nullable
                 | Kind::Timeable
-                | Kind::Primitive
+                | Kind::Basic
                 | Kind::Stringable => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
@@ -637,14 +637,14 @@ impl MonoType {
                 }),
             },
             MonoType::Regexp => match with {
-                Kind::Primitive => Ok(()),
+                Kind::Basic => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
                     exp: with,
                 }),
             },
             MonoType::Bytes => match with {
-                Kind::Equatable | Kind::Primitive => Ok(()),
+                Kind::Equatable | Kind::Basic => Ok(()),
                 _ => Err(Error::CannotConstrain {
                     act: self,
                     exp: with,
@@ -2512,7 +2512,7 @@ mod tests {
             Kind::Record,
             Kind::Negatable,
             Kind::Timeable,
-            Kind::Primitive,
+            Kind::Basic,
             Kind::Stringable,
         ];
         let mut str_kinds: Vec<_> = kinds.iter().map(|k| k.to_string()).collect();
