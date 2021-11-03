@@ -23,25 +23,26 @@
 //!
 use std::collections::HashMap;
 
-use crate::semantic::{
-    self,
-    bootstrap::build_polytype,
-    env::Environment,
-    fresh::Fresher,
-    import::Importer,
-    sub::Substitution,
-    types::{MonoType, PolyType, PolyTypeMap, SemanticMap, TvarKinds},
-    Analyzer, AnalyzerConfig,
-};
-
-use crate::ast;
-use crate::ast::get_err_type_expression;
-use crate::parser;
-use crate::parser::parse_string;
-use crate::semantic::convert::convert_polytype;
-
 use colored::*;
 use derive_more::Display;
+
+use crate::{
+    ast,
+    ast::get_err_type_expression,
+    parser,
+    parser::parse_string,
+    semantic::{
+        self,
+        bootstrap::build_polytype,
+        convert::convert_polytype,
+        env::Environment,
+        fresh::Fresher,
+        import::Importer,
+        sub::Substitution,
+        types::{MonoType, PolyType, PolyTypeMap, SemanticMap, TvarKinds},
+        Analyzer, AnalyzerConfig,
+    },
+};
 
 mod vectorize;
 

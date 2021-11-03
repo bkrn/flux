@@ -1,10 +1,11 @@
 //! "Fresh" type variable identifiers.
 
+use std::{collections::BTreeMap, hash::Hash};
+
 use crate::semantic::types::{
     Array, Function, MonoType, MonoTypeVecMap, PolyType, Property, Record, SemanticMap, Tvar,
     TvarMap,
 };
-use std::{collections::BTreeMap, hash::Hash};
 
 /// A struct used for incrementing type variable identifiers.
 #[derive(Default)]

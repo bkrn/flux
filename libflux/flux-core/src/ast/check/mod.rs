@@ -1,6 +1,7 @@
 //! Checking the AST.
 
 use std::fmt;
+
 use thiserror::Error;
 
 use crate::ast::{walk, PropertyKey, SourceLocation};
