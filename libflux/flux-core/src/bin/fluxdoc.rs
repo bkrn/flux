@@ -253,9 +253,6 @@ impl<'a> example::Executor for CLIExecutor<'a> {
 const EXCEPTIONS: &[&str] = &[
     "array",
     "contrib",
-    "contrib/RohanSreerama5",
-    "contrib/RohanSreerama5/images",
-    "contrib/RohanSreerama5/naiveBayesClassifier",
     "contrib/anaisdg",
     "contrib/anaisdg/anomalydetection",
     "contrib/anaisdg/statsmodels",
