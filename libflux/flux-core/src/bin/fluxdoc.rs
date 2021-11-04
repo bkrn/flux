@@ -237,7 +237,7 @@ impl<'a> example::Executor for CLIExecutor<'a> {
 // high standard going forward.
 //
 // See https://github.com/influxdata/flux/issues/4141 for tacking removing of this list.
-const EXCEPTIONS: [&str; 94] = [
+const EXCEPTIONS: &[&str] = &[
     "array",
     "contrib",
     "contrib/RohanSreerama5",
