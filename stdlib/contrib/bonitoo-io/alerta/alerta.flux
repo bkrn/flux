@@ -1,3 +1,4 @@
+// Package alerta TODO
 package alerta
 
 
@@ -6,20 +7,26 @@ import "json"
 import "strings"
 
 // alert sends an alert to Alerta.
-// `url` - string - Alerta URL.
-// `apiKey` - string - Alerta API key.
-// `resource` - string - resource under alarm.
-// `event` - string - event name.
-// `environment` - string - environment. Valid values: "Production", "Development" or empty string (default).
-// `severity` - string - event severity. See https://docs.alerta.io/en/latest/api/alert.html#alert-severities.
-// `service` - arrays of string - list of affected services.
-// `group` - string - event group.
-// `value` - string - event value.
-// `text` - string - text description.
-// `type` - string - event type.
-// `origin` - string - monitoring component.
-// `timestamp` - time - time alert was generated.
-// `timeout` - int - seconds before alert is considered stale.
+//
+// ## Parameters
+//
+// - url: - string - Alerta URL.
+// - apiKey: - string - Alerta API key.
+// - resource: - string - resource under alarm.
+// - event: - string - event name.
+// - environment: - string - environment. Valid values: "Production", "Development" or empty string (default).
+// - severity: - string - event severity. See https://docs.alerta.io/en/latest/api/alert.html#alert-severities.
+// - service: - arrays of string - list of affected services.
+// - group: - string - event group.
+// - value: - string - event value.
+// - text: - string - text description.
+// - type: - string - event type.
+// - origin: - string - monitoring component.
+// - timestamp: - time - time alert was generated.
+// - attributes: TK
+// - tags: TK
+// 
+// // - timeout: - int - seconds before alert is considered stale.
 alert = (
     url,
     apiKey,
@@ -60,13 +67,17 @@ alert = (
 }
 
 // endpoint creates the endpoint for the Alerta.
-// `url` - string - VictorOps REST endpoint URL. No default.
-// `apiKey` - string - Alerta API key.
-// `environment` - string - environment. Valid values: "Production", "Development" or empty string (default).
-// `origin` - string - monitoring component.
-// The returned factory function accepts a `mapFn` parameter.
-// The `mapFn` must return an object with `resource`, `event`, `severity`, `service`, `group`, `value`, `text`,
-// `tags`, `attributes`, `origin`, `type` and `timestamp` fields as defined in the `alert` function arguments.
+//
+// ## Parameters
+// 
+// - url: - string - VictorOps REST endpoint URL. No default.
+// - apiKey: - string - Alerta API key.
+// - environment: - string - environment.
+//   Valid values: "Production", "Development" or empty string (default).
+// - origin: - string - monitoring component.
+//   The returned factory function accepts a `mapFn` parameter.
+//   The `mapFn` must return an object with `resource`, `event`, `severity`, `service`, `group`, `value`, `text`,
+//   `tags`, `attributes`, `origin`, `type` and `timestamp` fields as defined in the `alert` function arguments.
 endpoint = (url, apiKey, environment="", origin="") => (mapFn) => (tables=<-) => tables
     |> map(
         fn: (r) => {
