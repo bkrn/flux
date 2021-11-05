@@ -1,11 +1,14 @@
 package universe_test
 
 
+import "csv"
 import "testing"
 
 option now = () => 2030-01-01T00:00:00Z
 
-inData = "
+testcase increase_basic {
+    got = csv.from(
+        csv: "
 #datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string,string,string
 #group,false,false,false,false,false,false,true,true,true,true
 #default,_result,,,,,,,,,
@@ -26,8 +29,13 @@ inData = "
 ,,1,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:54:36Z,20,usage_guest_nice,cpu,cpu-total,host.local
 ,,1,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:54:46Z,7,usage_guest_nice,cpu,cpu-total,host.local
 ,,1,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:54:56Z,10,usage_guest_nice,cpu,cpu-total,host.local
-"
-outData = "
+",
+    )
+        |> range(start: 2018-05-22T19:53:26Z)
+        |> increase(columns: ["counter"])
+
+    want = csv.from(
+        csv: "
 #datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string,string,string
 #group,false,false,true,true,false,false,true,true,true,true
 #default,_result,,,,,,,,,
@@ -46,9 +54,46 @@ outData = "
 ,,1,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:54:36Z,28,usage_guest_nice,cpu,cpu-total,host.local
 ,,1,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:54:46Z,28,usage_guest_nice,cpu,cpu-total,host.local
 ,,1,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:54:56Z,31,usage_guest_nice,cpu,cpu-total,host.local
-"
-t_increase = (table=<-) => table
-    |> range(start: 2018-05-22T19:53:26Z)
-    |> increase(columns: ["counter"])
+",
+    )
 
-test _increase = () => ({input: testing.loadStorage(csv: inData), want: testing.loadMem(csv: outData), fn: t_increase})
+    testing.diff(got: got, want: want)
+}
+
+testcase increase_with_initialZero {
+    got = csv.from(
+        csv: "
+#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string,string,string
+#group,false,false,false,false,false,false,true,true,true,true
+#default,_result,,,,,,,,,
+,result,table,_start,_stop,_time,counter,_field,_measurement,cpu,host
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:53:26Z,4302,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:53:36Z,4844,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:53:46Z,5091,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:53:56Z,13,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:54:06Z,215,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:54:16Z,762,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:24.421470485Z,2018-05-22T19:55:00Z,2018-05-22T19:54:26Z,1108,usage_guest,cpu,cpu-total,host.local
+",
+    )
+        |> range(start: 2018-05-22T19:53:26Z)
+        |> increase(columns: ["counter"], initialZero: true)
+
+    want = csv.from(
+        csv: "
+#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string,string,string
+#group,false,false,true,true,false,false,true,true,true,true
+#default,_result,,,,,,,,,
+,result,table,_start,_stop,_time,counter,_field,_measurement,cpu,host
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:53:26Z,0,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:53:36Z,542,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:53:46Z,789,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:53:56Z,802,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:54:06Z,1004,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:54:16Z,1551,usage_guest,cpu,cpu-total,host.local
+,,0,2018-05-22T19:53:26Z,2030-01-01T00:00:00Z,2018-05-22T19:54:26Z,1897,usage_guest,cpu,cpu-total,host.local
+",
+    )
+
+    testing.diff(got: got, want: want)
+}
