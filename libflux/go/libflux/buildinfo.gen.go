@@ -98,7 +98,7 @@ var sourceHashes = map[string]string{
 	"stdlib/contrib/anaisdg/anomalydetection/mad_test.flux":                                       "ba55de9927f0ba9bc065bc359090a35675812181def2aaa9a4fd466bcd335826",
 	"stdlib/contrib/anaisdg/statsmodels/linearreg.flux":                                           "6e1452091ea325c83219c860dbea694ca492feb340aadc04c6381dff12dfc0b8",
 	"stdlib/contrib/anaisdg/statsmodels/linearreg_test.flux":                                      "347f8d80901d6f2fa4bb66a1a560fd71a4ea73ea9c4215213f076d12f7c33920",
-	"stdlib/contrib/bonitoo-io/alerta/alerta.flux":                                                "4581953dd424e6790c9c71300864a44f5262d125fd7116e13fa5705a9603728d",
+	"stdlib/contrib/bonitoo-io/alerta/alerta.flux":                                                "c39ec6d5d2e47cb2e319472083086deffa9ec98e6c5dd589233afc4baa009008",
 	"stdlib/contrib/bonitoo-io/hex/hex.flux":                                                      "9460d41054683e01b6310c7f93616712652b255919001c72715d56559083c559",
 	"stdlib/contrib/bonitoo-io/servicenow/servicenow.flux":                                        "eaea11958af063c38af71034ff4a75745c0de39ef28ef2a9e31cb85be5676e45",
 	"stdlib/contrib/bonitoo-io/tickscript/alert_test.flux":                                        "7636315671214cdccf63d70162e53bd4f9025008bd3587a7f751634fd6e0344f",
